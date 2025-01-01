@@ -1,0 +1,28 @@
+pragma solidity ^0.8.0;
+
+// ERC-20 compatible governance token
+contract GovernanceToken is ERC20 {
+    constructor() ERC20("DACToken", "DCT") {
+        // Initial token distribution (consider more sophisticated mechanisms)
+        _mint(msg.sender, 1000000 * 10**18); // Example: Mint 1 million tokens to deployer
+    }
+}
+
+// Membership NFT contract (ERC-1155)
+contract MembershipNFT is ERC1155 {
+    // Define membership tiers (Basic, Contributor, Investor)
+    uint256 public constant BASIC = 0;
+    uint256 public constant CONTRIBUTOR = 1;
+    uint256 public constant INVESTOR = 2;
+
+    constructor() ERC1155("") {}
+
+    function mintMembership(address _to, uint256 _id, uint256 _amount) public {
+        _mint(_to, _id, _amount, "");
+    }
+}
+
+// DAO Constitution (simplified)
+contract DAOConstitution {
+    // ... Define rules, parameters, and amendment procedures ...
+}

@@ -1,0 +1,42 @@
+@RestController
+@RequestMapping("/api")
+public class DACController {
+
+    @Autowired
+    private Web3j web3j; 
+
+    @Autowired
+    private Credentials credentials; 
+
+    @Autowired
+    private ContractLoader contractLoader; 
+
+    // Example: Endpoint to mint a membership NFT
+    @PostMapping("/mint-membership")
+    public ResponseEntity<String> mintMembership(@RequestBody MintMembershipRequest request) {
+        try {
+            // Load MembershipNFT contract
+            MembershipNFT membershipNFTContract = 
+                ContractLoader.load(
+                    contractAddress, 
+                    MembershipNFT.class, 
+                    web3j, 
+                    credentials, 
+                    GasProvider.getDefaultGasProvider()
+                );
+
+            // Call mintMembership function on the contract
+            TransactionReceipt receipt = membershipNFTContract.mintMembership(
+                request.getToAddress(), 
+                request.getMembershipId(), 
+                request.getAmount()
+            ).send();
+
+            return ResponseEntity.ok("Membership NFT minted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error minting NFT");
+        }
+    }
+
+    // ... Other endpoints for content management, governance, etc. ...
+}

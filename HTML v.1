@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DAC Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <h1>Welcome to the DAC</h1>
+        <button id="mintMembershipButton">Mint Membership</button>
+        <div id="membershipInfo"></div>
+        </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
+<script>
+    const mintMembershipButton = document.getElementById('mintMembershipButton');
+    mintMembershipButton.addEventListener('click', async () => {
+        try {
+            // ... Interact with the backend API to mint membership NFT ...
+        } catch (error) {
+            console.error('Error minting membership:', error);
+        }
+    });
+</script>
