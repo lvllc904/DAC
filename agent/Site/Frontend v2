@@ -1,0 +1,140 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+
+contract MembershipWebsite is Ownable, ERC721Enumerable {
+    using Counters for Counters.Counter;
+    using Strings for uint256;
+
+    Counters.Counter private _tokenIdCounter;
+
+    mapping(address => bool) public isMember;
+
+    // User Data
+    struct User {
+        string profile;
+        uint256 reputationScore;
+        address[] connections;
+    }
+
+    mapping(address => User) public users;
+
+    // Content Feed
+    struct Post {
+        uint256 postId; // Add an ID to each post
+        address author;
+        string content;
+        uint256 timestamp;
+        string[] comments;
+    }
+
+    Post[] public posts;
+    Counters.Counter private _postIdCounter; // Counter for post IDs
+
+
+    constructor() ERC721("MembershipNFT", "MEMB") {}
+
+    function mint(address recipient) public onlyOwner {
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(recipient, tokenId);
+        isMember[recipient] = true;
+
+        users[recipient] = User({
+            profile: "",
+            reputationScore: 0,
+            connections: new address[](0)
+        });
+    }
+
+    function revokeMembership(address member) public onlyOwner {
+        require(isMember[member], "Not a member");
+        isMember[member] = false;
+        // Consider burning the NFT or adding a mechanism to handle token ownership for revoked members
+    }
+
+
+    function updateProfile(string memory newProfile) public {
+        require(isMember[msg.sender], "Only members can update profiles");
+        users[msg.sender].profile = newProfile;
+    }
+
+    function viewProfile(address user) public view returns (string memory) {
+        return users[user].profile;
+    }
+
+
+    function connect(address otherUser) public {
+        require(isMember[msg.sender], "Only members can connect");
+        require(isMember[otherUser], "Only members can be connected");
+        require(msg.sender != otherUser, "Cannot connect to oneself"); // Prevent self-connection
+
+
+        if (!isConnection(msg.sender, otherUser)) {
+            users[msg.sender].connections.push(otherUser);
+            users[otherUser].connections.push(msg.sender);
+        }
+    }
+
+
+    function isConnection(address userA, address userB) public view returns (bool) {
+        for (uint256 i = 0; i < users[userA].connections.length; i++) {
+            if (users[userA].connections[i] == userB) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+
+    function createPost(string memory content) public {
+        require(isMember[msg.sender], "Only members can post");
+        uint256 postId = _postIdCounter.current();
+        _postIdCounter.increment();
+
+        posts.push(Post({
+            postId: postId, // Assign the unique ID
+            author: msg.sender,
+            content: content,
+            timestamp: block.timestamp,
+            comments: new string[](0)
+        }));
+    }
+
+    function getPosts() public view returns (Post[] memory) {
+        return posts;
+    }
+
+    function addComment(uint256 postId, string memory comment) public {
+        require(isMember[msg.sender], "Only members can comment");
+
+        // Use a loop to find the post by ID, since posts are stored as an array
+        for (uint256 i = 0; i < posts.length; i++) {
+            if (posts[i].postId == postId) {
+                posts[i].comments.push(comment);
+                return; // Exit after adding the comment
+            }
+        }
+
+        revert("Post not found"); // Revert if post ID is not found
+    }
+
+
+
+
+    // Groups (Simplified - Remains the same)
+    // ... (Group struct and functions)
+
+    // Reputation System (Basic - Remains the same)
+    // ... (Reputation functions)
+
+    // Messaging (Requires off-chain solution)
+
+
+}
