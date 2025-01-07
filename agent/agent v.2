@@ -1,0 +1,78 @@
+import time
+import json
+from swarm import Swarm
+from swarm.repl import run_demo_loop
+from agents import based_agent
+import requests
+import pip
+from googleapiclient.discovery import build
+from google.oauth2 import service_account
+import pandas as pd
+
+# --- Improved MainAgent Class ---
+class MainAgent:
+    def __init__(self, api_key, openai_model="text-davinci-003"):
+        self.api_key = api_key
+        self.openai_model = openai_model
+
+    def create_lower_level_agent(self, task_description):
+        """Creates a lower-level agent based on the task description."""
+        response = requests.post(
+            "https://api.openai.com/v1/completions",
+            headers={"Authorization": f"Bearer {self.api_key}"},
+            json={
+                "model": self.openai_model,
+                "prompt": f"Generate Python code for a lower-level agent that performs the following task: {task_description}",
+                "max_tokens": 1024,
+                "temperature": 0.7,
+            },
+        )
+        agent_code = response.json()["choices"][0]["text"]
+
+        # Safely execute the generated code in a controlled environment
+        # (e.g., within a sandbox or using a restricted execution environment) 
+        # This is crucial for security!
+        try:
+            exec(agent_code) 
+        except Exception as e:
+            print(f"Error executing agent code: {e}")
+            return None
+
+    def handle_task(self, task):
+        """Handles a task by delegating it to a lower-level agent."""
+        agent = self.create_lower_level_agent(task)
+        if agent:
+            # Run the agent to execute the task.
+            # (Implement the agent execution logic here)
+            pass 
+
+    def search_and_install_api(self, api_name):
+        """Searches for and installs the required API using pip."""
+        try:
+            pip.main(['install', f'{api_name}']) 
+        except Exception as e:
+            print(f"Error installing API: {e}")
+
+    def get_data_from_google_sheets(self, spreadsheet_id, sheet_name, range_):
+        """Retrieves data from a Google Sheet."""
+        credentials = service_account.Credentials.from_service_account_file(
+            'path/to/your/credentials.json'
+        )
+        service = build('sheets', 'v4', credentials=credentials)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id, range=range_
+        ).execute()
+        data = result.get('values', [])
+        return data
+
+    def get_data_from_google_drive(self, file_id):
+        """Retrieves data from a Google Drive file."""
+        # Implement your Google Drive data retrieval logic here.
+        # Use the Google Drive API to get the file content.
+        return "file_content"
+
+# ... (rest of the code remains the same) ...
+
+if __name__ == "__main__":
+    print("Starting Based Agent...")
+    main()

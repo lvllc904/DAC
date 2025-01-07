@@ -1,0 +1,19 @@
+<input type="text" id="revokeAddress" placeholder="Address to revoke">
+<button onclick="revokeMembership(document.getElementById('revokeAddress').value)">Revoke Membership</button>
+
+<input type="text" id="profileAddress" placeholder="Address to view profile">
+<button onclick="viewProfile(document.getElementById('profileAddress').value)">View Profile</button>
+<div id="profileDisplay"></div>  <!-- To display the profile -->
+
+
+<input type="text" id="connectAddress" placeholder="Address to connect with">
+<button onclick="connectWithUser(document.getElementById('connectAddress').value)">Connect</button>
+
+
+<input type="text" id="groupName" placeholder="Group name">
+<button onclick="createGroup(document.getElementById('groupName').value)">Create Group</button>
+
+<input type="number" id="groupId" placeholder="Group ID">
+<button onclick="joinGroup(parseInt(document.getElementById('groupId').value, 10))">Join Group</button>
+
+<!-- ... other UI elements ... -->
